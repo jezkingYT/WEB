@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archimédův zákon 🌊 no cap</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060d1a;
+    --ocean: #0a1f3d;
+    --water: #0d4f8c;
+    --foam: #1ad4ff;
+    --neon: #00ffe0;
+    --pink: #ff2d78;
+    --yellow: #ffe500;
+    --white: #f0faff;
+    --card: #0d1e35;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 40% at 50% 110%, #0d4f8c55 0%, transparent 70%),
+      radial-gradient(ellipse 40% 30% at 80% 20%, #ff2d7822 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 10% 60%, #00ffe022 0%, transparent 60%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  section, header, footer { position: relative; z-index: 1; }
+
+  header {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+    overflow: hidden;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--pink);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .15em;
+    padding: .35rem .9rem;
+    border-radius: 99px;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    animation: popIn .6s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 12vw, 9rem);
+    line-height: .92;
+    letter-spacing: .02em;
+    background: linear-gradient(135deg, var(--foam) 0%, var(--neon) 40%, var(--yellow) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: popIn .7s .15s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: 700;
+    color: #a0d4f5;
+    margin-top: 1rem;
+    max-width: 560px;
+    animation: popIn .7s .3s cubic-bezier(.34,1.56,.64,1) both;
+  }
+
+  .hero-emoji {
+    font-size: 5rem;
+    margin-bottom: .5rem;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    font-size: .85rem;
+    color: var(--foam);
+    opacity: .7;
+    animation: bounce 2s infinite;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .bubbles { position: absolute; inset: 0; pointer-events: none; }
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(26,212,255,.6), rgba(0,255,224,.1));
+    border: 1px solid rgba(26,212,255,.3);
+    animation: rise linear infinite;
+  }
+
+  section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: var(--neon);
+    margin-bottom: .5rem;
+  }
+
+  h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    line-height: 1;
+    margin-bottom: 1.2rem;
+    color: var(--white);
+  }
+
+  h2 span { color: var(--foam); }
+
+  p { line-height: 1.7; color: #b8d4ea; font-size: 1.05rem; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.2rem;
+    margin-top: 2rem;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(26,212,255,.15);
+    border-radius: 18px;
+    padding: 1.6rem;
+    transition: transform .25s, box-shadow .25s;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0,255,224,.12);
+  }
+  .card-icon { font-size: 2.4rem; margin-bottom: .8rem; display: block; }
+  .card h3 {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--foam);
+    margin-bottom: .4rem;
+  }
+  .card p { font-size: .95rem; }
+
+  .formula-box {
+    margin: 2.5rem 0;
+    background: linear-gradient(135deg, #0d2a4a, #0a1f3d);
+    border: 2px solid var(--neon);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .formula-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, rgba(0,255,224,.08), transparent 70%);
+  }
+  .formula {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    color: var(--neon);
+    font-weight: 700;
+    letter-spacing: .05em;
+    position: relative;
+  }
+  .formula-legend {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: center;
+    position: relative;
+  }
+  .formula-legend span {
+    background: rgba(255,255,255,.07);
+    border-radius: 8px;
+    padding: .3rem .8rem;
+    font-size: .85rem;
+    font-family: 'Space Mono', monospace;
+    color: #b8d4ea;
+  }
+
+  .tank-section { text-align: center; }
+
+  .tank-wrapper {
+    margin: 2rem auto;
+    position: relative;
+    width: min(420px, 100%);
+  }
+
+  .tank-canvas-wrap {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 3px solid var(--water);
+    box-shadow: 0 0 40px rgba(13,79,140,.6), inset 0 0 30px rgba(0,0,0,.4);
+  }
+
+  #tankCanvas { display: block; width: 100%; }
+
+  .obj-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .7rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .obj-btn {
+    background: var(--card);
+    border: 2px solid rgba(26,212,255,.25);
+    border-radius: 14px;
+    padding: .65rem 1.2rem;
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .15rem;
+    min-width: 90px;
+  }
+  .obj-btn:hover { border-color: var(--foam); background: #132540; transform: scale(1.06); }
+  .obj-btn .obj-emoji { font-size: 1.8rem; }
+  .obj-btn .obj-label { font-size: .7rem; color: #7ab4d4; text-transform: uppercase; letter-spacing: .08em; }
+
+  #tankMsg {
+    margin-top: 1.2rem;
+    min-height: 2.5rem;
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--neon);
+    transition: opacity .3s;
+  }
+
+  .reset-btn {
+    background: transparent;
+    border: 2px solid var(--pink);
+    border-radius: 99px;
+    color: var(--pink);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: .9rem;
+    padding: .5rem 1.5rem;
+    cursor: pointer;
+    margin-top: .8rem;
+    transition: all .2s;
+    letter-spacing: .05em;
+  }
+  .reset-btn:hover { background: var(--pink); color: #fff; }
+
+  .eureka-box {
+    background: linear-gradient(135deg, #1a0a2e, #0d1e35);
+    border-left: 4px solid var(--yellow);
+    border-radius: 16px;
+    padding: 1.8rem 2rem;
+    margin: 2rem 0;
+  }
+  .eureka-box h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--yellow);
+    margin-bottom: .6rem;
+  }
+
+  .quiz-box {
+    background: var(--card);
+    border: 1px solid rgba(26,212,255,.2);
+    border-radius: 22px;
+    padding: 2rem;
+    margin-top: 2rem;
+  }
+  .quiz-question {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--white);
+    margin-bottom: 1.2rem;
+    line-height: 1.5;
+  }
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+  }
+  .quiz-opt {
+    background: rgba(255,255,255,.05);
+    border: 2px solid rgba(26,212,255,.15);
+    border-radius: 12px;
+    padding: .85rem 1.2rem;
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all .2s;
+  }
+  .quiz-opt:hover { border-color: var(--foam); background: rgba(26,212,255,.08); }
+  .quiz-opt.correct { background: rgba(0,255,160,.15); border-color: #00ffa0; color: #00ffa0; }
+  .quiz-opt.wrong { background: rgba(255,45,120,.12); border-color: var(--pink); color: var(--pink); }
+  #quizFeedback {
+    margin-top: 1rem;
+    font-weight: 900;
+    font-size: 1.05rem;
+    min-height: 1.8rem;
+    color: var(--neon);
+  }
+  .next-btn {
+    display: none;
+    margin-top: 1rem;
+    background: linear-gradient(135deg, var(--foam), var(--neon));
+    color: var(--bg);
+    border: none;
+    border-radius: 99px;
+    padding: .6rem 1.8rem;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform .2s;
+  }
+  .next-btn:hover { transform: scale(1.05); }
+
+  .score-display {
+    font-family: 'Space Mono', monospace;
+    font-size: .9rem;
+    color: var(--yellow);
+    margin-bottom: 1rem;
+  }
+
+  .real-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .real-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    background: var(--card);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+    border: 1px solid rgba(26,212,255,.1);
+  }
+  .real-list li .ri { font-size: 2rem; flex-shrink: 0; }
+  .real-list li strong { color: var(--foam); display: block; margin-bottom: .2rem; }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  @media(max-width: 480px) { .calc-grid { grid-template-columns: 1fr; } }
+
+  .calc-group label {
+    display: block;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--foam);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: .4rem;
+    font-family: 'Space Mono', monospace;
+  }
+  .calc-group input {
+    width: 100%;
+    background: rgba(255,255,255,.05);
+    border: 2px solid rgba(26,212,255,.2);
+    border-radius: 10px;
+    padding: .6rem 1rem;
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .calc-group input:focus { border-color: var(--neon); }
+
+  .calc-result {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #0d2a4a, #0a1f3d);
+    border: 2px solid rgba(0,255,224,.25);
+    border-radius: 14px;
+    padding: 1.2rem;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    min-height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--neon);
+  }
+
+  .calc-btn {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #0d4f8c, #0a8c6e);
+    border: none;
+    border-radius: 12px;
+    padding: .8rem;
+    color: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: opacity .2s, transform .2s;
+  }
+  .calc-btn:hover { opacity: .85; transform: scale(1.02); }
+
+  footer {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: .8rem;
+    color: rgba(160,212,245,.4);
+    letter-spacing: .1em;
+  }
+  footer span { color: var(--pink); }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(.8) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-14px); }
+  }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+  @keyframes rise {
+    from { transform: translateY(100vh) scale(1); opacity: .8; }
+    to   { transform: translateY(-120px) scale(1.2); opacity: 0; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .wave-divider {
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    margin-top: -1px;
+  }
+  .wave-divider svg { display: block; width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="bubbles" id="bubbles"></div>
+
+<header>
+  <span class="badge">🧪 Fyzika pro sedmáky · no cap</span>
+  <span class="hero-emoji">🌊</span>
+  <h1>Archimédův<br>Zákon</h1>
+  <p class="hero-sub">Proč věci plavou nebo klesají? Bro, tohle je <em>lowkey</em> nejlepší zákon ve fyzice fr fr ✨</p>
+  <p class="scroll-hint">↓ scrolluj dolů ↓</p>
+</header>
+
+<div class="wave-divider">
+  <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z" fill="#060d1a"/>
+  </svg>
+</div>
+
+<section class="reveal">
+  <div class="section-tag">// the origin story</div>
+  <h2>Kdo byl <span>Archimédés</span>?</h2>
+  <p>Archimédés byl starogrécký génius, který žil někdy kolem roku <strong style="color:var(--yellow)">250 před Kristem</strong>. To je dávno, ale jeho objev je tak W, že ho učíme dodnes. 💪</p>
+
+  <div class="eureka-box">
+    <h3>⚡ EUREKA MOMENT</h3>
+    <p>Král Hierón měl problém: zlatník mu vyrobil zlatou korunu, ale on nevěděl, jestli ji neošidil a nedal dovnitř stříbro. Jak to ověřit bez roztavení koruny? 🤔<br><br>
+    Archimédés to řešil několik dní. Jednou vlezl do vany – a voda přetekla přes okraj. <strong style="color:var(--yellow)">PING! 💡</strong> Uvědomil si, že objem vody, která přetekla, přesně odpovídá objemu jeho těla. Prý vyběhl nahatý na ulici a křičel <em>"HÉÚRÉKA!"</em> (= nalezl jsem!). Bezpochyby bussin moment. 😂</p>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="section-tag">// the actual law</div>
+  <h2>Co zákon <span>říká</span>?</h2>
+  <p>Archimédův zákon říká jednu jednoduchou věc — no cap:</p>
+
+  <div class="formula-box">
+    <div class="formula">F<sub>vz</sub> = ρ · g · V</div>
+    <div class="formula-legend">
+      <span>F<sub>vz</sub> = vztlaková síla [N]</span>
+      <span>ρ = hustota kapaliny [kg/m³]</span>
+      <span>g = tíhové zrychlení ≈ 9,81 m/s²</span>
+      <span>V = objem ponořené části [m³]</span>
+    </div>
+  </div>
+
+  <p>Česky: <strong style="color:var(--foam)">Každé těleso ponořené do kapaliny je nadnášeno silou, která se rovná tíze kapaliny, kterou těleso vytlačilo.</strong></p>
+  <br>
+  <p>Jednodušeji: Když strčíš něco do vody, voda se snaží to vyhodit nahoru. Čím víc místa zabereš ve vodě, tím tě to víc tlačí nahoru. Slay! 🚀</p>
+
+  <div class="card-grid" style="margin-top:2rem">
+    <div class="card">
+      <span class="card-icon">⬆️</span>
+      <h3>Plave</h3>
+      <p>Vztlaková síla <strong style="color:var(--neon)">je větší</strong> než tíha tělesa. Těleso plave na povrchu. <em>W situace.</em></p>
+    </div>
+    <div class="card">
+      <span class="card-icon">⚖️</span>
+      <h3>Vznáší se</h3>
+      <p>Vztlaková síla <strong style="color:var(--yellow)">se rovná</strong> tíze. Těleso visí uprostřed vody jako ponorka. <em>Kinda mid ale cool.</em></p>
+    </div>
+    <div class="card">
+      <span class="card-icon">⬇️</span>
+      <h3>Klesá</h3>
+      <p>Vztlaková síla <strong style="color:var(--pink)">je menší</strong> než tíha. Těleso klesne ke dnu. <em>L situace ngl.</em></p>
+    </div>
+  </div>
+</section>
+
+<section class="reveal tank-section">
+  <div class="section-tag">// hands-on experience</div>
+  <h2>Zkus to <span>sám!</span></h2>
+  <p>Hoď věci do vody a koukej, co se stane. No cap, tohle je science. 🧪</p>
+
+  <div class="tank-wrapper">
+    <div class="tank-canvas-wrap">
+      <canvas id="tankCanvas" width="420" height="320"></canvas>
+    </div>
+    <div class="obj-buttons">
+      <button class="obj-btn" onclick="dropItem('cork')"><span class="obj-emoji">🪵</span><span class="obj-label">Korek</span></button>
+      <button class="obj-btn" onclick="dropItem('duck')"><span class="obj-emoji">🦆</span><span class="obj-label">Kačenka</span></button>
+      <button class="obj-btn" onclick="dropItem('rock')"><span class="obj-emoji">🪨</span><span class="obj-label">Kámen</span></button>
+      <button class="obj-btn" onclick="dropItem('iron')"><span class="obj-emoji">🔩</span><span class="obj-label">Železo</span></button>
+      <button class="obj-btn" onclick="dropItem('ship')"><span class="obj-emoji">🚢</span><span class="obj-label">Loď</span></button>
+      <button class="obj-btn" onclick="dropItem('ice')"><span class="obj-emoji">🧊</span><span class="obj-label">Led</span></button>
+    </div>
+    <div id="tankMsg"></div>
+    <button class="reset-btn" onclick="resetTank()">🔄 Reset nádrže</button>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="section-tag">// mind = blown</div>
+  <h2>Proč plave <span>ocelová loď</span>?</h2>
+  <p>Počkat... ocel klesá ke dnu. Ale lodě jsou z oceli. Jak to? <strong style="color:var(--pink)">Sus? 🤔</strong></p>
+  <br>
+  <p>Není sus, je to W fyzika! Loď není plný kus oceli – je to dutá schránka plná vzduchu. <strong style="color:var(--foam)">Celková průměrná hustota lodi je nižší než hustota vody.</strong> Proto plave!</p>
+  <br>
+  <p>Je to jako nafukovací balónek vs. kamenný míč. Balónek plave, protože vzduch uvnitř je lehčí než voda, kterou by jinak ten prostor zaujal.</p>
+
+  <div class="card-grid" style="margin-top:1.5rem">
+    <div class="card">
+      <span class="card-icon">🚢</span>
+      <h3>Loď</h3>
+      <p>Dutá ocel + vzduch = průměrná hustota ~0,3 kg/m³ → plave, hustota vody je 1000 kg/m³ → <em>hard W</em></p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🐋</span>
+      <h3>Velryba</h3>
+      <p>Speciální vzduchové vaky v těle mění hustotu. Velryba si sama reguluje, jestli plave nebo klesá. <em>Goated.</em></p>
+    </div>
+    <div class="card">
+      <span class="card-icon">🤿</span>
+      <h3>Ponorka</h3>
+      <p>Napouští a vypouští vodu do nádrží → mění svou hustotu → jede nahoru nebo dolů. <em>Lowkey geniální.</em></p>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="section-tag">// math hits different</div>
+  <h2>Kalkulačka <span>vztlaku</span></h2>
+  <p>Spočítej si sám, jak velká vztlaková síla působí na tvůj předmět. Zadej hodnoty a hit it! 🎯</p>
+
+  <div class="quiz-box" style="margin-top:1.5rem">
+    <div class="calc-grid">
+      <div class="calc-group">
+        <label>Hustota kapaliny ρ (kg/m³)</label>
+        <input type="number" id="calcRho" placeholder="1000 = voda" value="1000">
+      </div>
+      <div class="calc-group">
+        <label>Objem tělesa V (cm³)</label>
+        <input type="number" id="calcVol" placeholder="napr. 500" value="500">
+      </div>
+      <button class="calc-btn" onclick="calcBuoyancy()">⚡ Spočítej vztlakovou sílu</button>
+      <div class="calc-result" id="calcResult">Zadej hodnoty a klikni ↑</div>
+    </div>
+    <p style="margin-top:.8rem; font-size:.85rem; color:#5a7a9a">Hustota vody = 1000 kg/m³ · Hustota slané vody ≈ 1025 kg/m³ · Hustota rtuti = 13 546 kg/m³</p>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="section-tag">// are you built different?</div>
+  <h2>Mini <span>Quiz</span> ✨</h2>
+  <p>Dokáže to přežít? Otestuj si, jestli jsi archimédovský rizz. 🧠</p>
+
+  <div class="quiz-box" style="margin-top:1.5rem">
+    <div class="score-display" id="scoreDisplay">Skóre: 0 / 0</div>
+    <div class="quiz-question" id="quizQ"></div>
+    <div class="quiz-options" id="quizOpts"></div>
+    <div id="quizFeedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Další otázka →</button>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="section-tag">// real world application</div>
+  <h2>Kde to <span>vidíš</span> IRL?</h2>
+  <ul class="real-list">
+    <li>
+      <span class="ri">🛳️</span>
+      <div><strong>Nákladní lodě</strong> Obrovské kontejnerové lodě váží statisíce tun, přesto plavou. Vztlaková síla je dost velká, protože vytlačují miliony litrů vody.</div>
+    </li>
+    <li>
+      <span class="ri">🎈</span>
+      <div><strong>Horkovzdušné balóny</strong> Archimédův zákon platí i pro vzduch! Teplý vzduch je řidší než studený → balón létá. <em>No cap, vzduch je také "kapalina" v tomhle smyslu.</em></div>
+    </li>
+    <li>
+      <span class="ri">🏊</span>
+      <div><strong>Plavání v moři vs. bazénu</strong> V slaném moři se plave líp! Hustota slané vody je větší → větší vztlaková síla → nemusíš tolik šlapat. Mrtvé moře? Tam se fakt utopíš jen těžko, bro.</div>
+    </li>
+    <li>
+      <span class="ri">🔬</span>
+      <div><strong>Hustoměr (areometr)</strong> Mění se podle hustoty kapaliny – čím hustší kapalina, tím výš plovoucí tyčinka. Používá se třeba pro testování piva nebo motorového oleje.</div>
+    </li>
+    <li>
+      <span class="ri">🦈</span>
+      <div><strong>Ryby a plynový měchýř</strong> Ryby mají uvnitř vzduchový vak. Nafukují nebo vyfukují ho → mění svoji hustotu → pohybují se nahoru/dolů bez plavání. Absolutně goated evoluce.</div>
+    </li>
+  </ul>
+</section>
+
+<footer>
+  <p style="font-size:1.1rem;margin-bottom:.5rem">🌊 Archimédův zákon — understood the assignment fr fr</p>
+  <p>Fyzika pro 7. třídu · made with <span>♥</span> · no cap education</p>
+</footer>
+
+<script>
+(function() {
+  const container = document.getElementById('bubbles');
+  for (let i = 0; i < 22; i++) {
+    const b = document.createElement('div');
+    b.className = 'bubble';
+    const size = Math.random() * 28 + 6;
+    b.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      bottom:${Math.random()*-20}%;
+      animation-duration:${Math.random()*8+5}s;
+      animation-delay:${Math.random()*6}s;
+      opacity:${Math.random()*.5+.2};
+    `;
+    container.appendChild(b);
+  }
+})();
+
+const revealEls = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+revealEls.forEach(el => observer.observe(el));
+
+const canvas = document.getElementById('tankCanvas');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const WATER_Y = H * 0.38;
+const items = [];
+
+const itemData = {
+  cork:  { emoji: '🪵', density: 0.24, msgs: ['Korek plave! No cap, hustota = 0,24 g/cm³ << voda 1,0 g/cm³ ✅', 'Korku je na Archimédově zákoně lowkey závislý 🌿'] },
+  duck:  { emoji: '🦆', density: 0.1,  msgs: ['Kačenka plave! Vzduch uvnitř = nižší průměrná hustota 🦆', 'Bussin plávání, vztlak > tíha fr fr!'] },
+  rock:  { emoji: '🪨', density: 2.65, msgs: ['Kámen klesl 💀 Hustota = 2,65 g/cm³ >> voda. Nope.', 'L pro kámen, W pro Archimédés 🪨'] },
+  iron:  { emoji: '🔩', density: 7.87, msgs: ['Železo šlo ke dnu 💀 Hustota = 7,87 g/cm³. Hard L.', 'Železo a voda? Sus kombinace ngl 🔩'] },
+  ship:  { emoji: '🚢', density: 0.3,  msgs: ['Loď plave! 🚢 Dutá ocel = průměrná hustota jen 0,3 g/cm³. W engineering!', 'Goated fyzika – oceloví gigachad plave díky Archimédovi!'] },
+  ice:   { emoji: '🧊', density: 0.917,msgs: ['Led plave! ❄️ Hustota 0,917 < 1,0 = voda. Proto ledovce trčí z oceánu!', 'Lowkey cool – led je lehčí než tekutá voda. Hits different.'] },
+};
+
+function drawTank() {
+  ctx.clearRect(0, 0, W, H);
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#06101e');
+  bg.addColorStop(1, '#0a1f3d');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const wg = ctx.createLinearGradient(0, WATER_Y, 0, H);
+  wg.addColorStop(0, 'rgba(13,79,140,0.9)');
+  wg.addColorStop(1, 'rgba(6,20,50,0.98)');
+  ctx.fillStyle = wg;
+  ctx.fillRect(0, WATER_Y, W, H - WATER_Y);
+
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.strokeStyle = '#1ad4ff';
+  ctx.lineWidth = 1.5;
+  for (let x = 0; x < W; x += 30) {
+    const t = Date.now() / 1000;
+    const yOff = Math.sin(x * 0.04 + t * 1.5) * 4;
+    ctx.beginPath();
+    ctx.moveTo(x, WATER_Y + yOff);
+    ctx.lineTo(x + 20, WATER_Y + Math.sin((x+20)*0.04 + t*1.5)*4);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.font = '600 11px Space Mono, monospace';
+  ctx.fillStyle = 'rgba(26,212,255,0.5)';
+  ctx.fillText('← Hladina vody →', 10, WATER_Y - 8);
+  ctx.restore();
+
+  items.forEach(it => {
+    const data = itemData[it.type];
+    const floats = data.density < 1.0;
+
+    if (it.animating) {
+      it.y += it.vy;
+      it.vy += 0.6;
+      if (floats) {
+        const targetY = WATER_Y - it.size * 0.4;
+        if (it.y > targetY) { it.y = targetY; it.vy = 0; it.animating = false; }
+      } else {
+        const targetY = H - it.size - 8;
+        if (it.y > targetY) { it.y = targetY; it.vy = 0; it.animating = false; }
+      }
+    }
+
+    ctx.save();
+    ctx.globalAlpha = 0.18;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(it.x + it.size/2, floats ? WATER_Y + 6 : H - 4, it.size*0.4, 5, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+
+    ctx.font = `${it.size}px serif`;
+    ctx.textBaseline = 'top';
+    ctx.fillText(data.emoji, it.x, it.y);
+
+    if (!it.animating) {
+      ctx.save();
+      ctx.font = 'bold 14px Nunito, sans-serif';
+      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center';
+      if (floats) {
+        ctx.fillStyle = '#00ffa0';
+        ctx.fillText('↑ plave', it.x + it.size/2, it.y - 18);
+      } else {
+        ctx.fillStyle = '#ff2d78';
+        ctx.fillText('↓ klesá', it.x + it.size/2, it.y + it.size + 16);
+      }
+      ctx.restore();
+    }
+  });
+}
+
+function loop() { drawTank(); requestAnimationFrame(loop); }
+loop();
+
+let dropX = 30;
+function dropItem(type) {
+  const size = type === 'ship' ? 52 : 38;
+  const x = dropX % (W - size - 20);
+  dropX += size + 20;
+  items.push({ type, x, y: -size, vy: 2, size, animating: true });
+
+  const msgs = itemData[type].msgs;
+  const msg = msgs[Math.floor(Math.random() * msgs.length)];
+  const msgEl = document.getElementById('tankMsg');
+  msgEl.style.opacity = 0;
+  setTimeout(() => { msgEl.textContent = msg; msgEl.style.opacity = 1; }, 200);
+}
+
+function resetTank() {
+  items.length = 0;
+  dropX = 30;
+  document.getElementById('tankMsg').textContent = '';
+}
+
+function calcBuoyancy() {
+  const rho = parseFloat(document.getElementById('calcRho').value);
+  const vol = parseFloat(document.getElementById('calcVol').value);
+  const resEl = document.getElementById('calcResult');
+  if (isNaN(rho) || isNaN(vol) || rho <= 0 || vol <= 0) {
+    resEl.textContent = '⚠️ Zadej platné kladné číslo, bro!';
+    return;
+  }
+  const volM3 = vol / 1e6;
+  const force = rho * 9.81 * volM3;
+  const verdict = force < 0.01
+    ? `F = ${(force*1000).toFixed(3)} mN`
+    : `F = ${force.toFixed(4)} N`;
+  resEl.innerHTML = `
+    <div style="line-height:1.8">
+      <strong style="color:var(--neon)">${verdict}</strong><br>
+      <span style="color:#b8d4ea; font-size:.85rem">ρ·g·V = ${rho} × 9,81 × ${volM3.toExponential(2)} = ${force.toFixed(4)} N</span>
+    </div>
+  `;
+}
+
+const questions = [
+  {
+    q: "Potopíš plastovou láhev plnou vzduchu do vody a pustíš ji. Co se stane?",
+    opts: ["Klesne ke dnu", "Vyskočí na povrch", "Zůstane uprostřed", "Zmizí"],
+    correct: 1,
+    explain: "Slay! Vzduch je mnohem lehčí než voda → průměrná hustota láhve je < 1 → plave. W fyzika! 🎯"
+  },
+  {
+    q: "Proč se v Mrtvém moři nedá utopit?",
+    opts: ["Voda je tam teplá", "Voda je tam hodně slaná a hustá", "Je tam mělko", "Je to mýtus"],
+    correct: 1,
+    explain: "No cap! Mrtvé moře má hustotu ~1,24 kg/l. Větší hustota = větší vztlaková síla = nemůžeš se ani pořádně potopit. Bussin! 🌊"
+  },
+  {
+    q: "Vztlaková síla závisí na...",
+    opts: ["Barvě tělesa", "Teplotě tělesa", "Objemu ponořené části a hustotě kapaliny", "Hmotnosti tělesa"],
+    correct: 2,
+    explain: "Přesně! F = ρ·g·V — hustota kapaliny krát tíhové zrychlení krát objem. Tíha samotného tělesa to neovlivní, goated! 🏆"
+  },
+  {
+    q: "Ponorka klesá do hloubky. Co udělá?",
+    opts: ["Nafukuje balónky", "Napouští vodu do nádrží, čímž zvýší svou hustotu", "Přestane fungovat motor", "Nic, padá sama gravitací"],
+    correct: 1,
+    explain: "Rizz answer! Napuštěním vody se průměrná hustota ponorky zvýší nad hustotu mořské vody → klesá. Vypuštěním vzduchu zpět → stoupá. Engineering W! 🚀"
+  },
+  {
+    q: "Železná koule a dřevěná koule mají stejný objem. Obě ponoříš do vody. Která má větší vztlakovou sílu?",
+    opts: ["Železná", "Dřevěná", "Stejná pro obě", "Záleží na barvě"],
+    correct: 2,
+    explain: "Fr fr správně! Vztlak závisí POUZE na objemu ponořeném a hustotě kapaliny, NE na materiálu. Stejný objem = stejný vztlak. Hits different, víme teď! 🎓"
+  }
+];
+
+let qIndex = 0, score = 0, answered = false;
+
+function loadQuestion() {
+  if (qIndex >= questions.length) {
+    document.getElementById('quizQ').textContent = '🏆 Quiz dokončen!';
+    document.getElementById('quizOpts').innerHTML = '';
+    document.getElementById('nextBtn').style.display = 'none';
+    const pct = Math.round(score / questions.length * 100);
+    let verdict;
+    if (pct === 100) verdict = '💎 Absolutní GOAT! Archimédés by tě přijal za žáka fr fr!';
+    else if (pct >= 60) verdict = '🔥 Solid W! Lowkey archimédovský rizz!';
+    else verdict = '📚 Zkus to znovu, bro. You got this!';
+    document.getElementById('quizFeedback').innerHTML = `Skóre: ${score}/${questions.length} (${pct}%)<br>${verdict}`;
+    return;
+  }
+  const q = questions[qIndex];
+  document.getElementById('quizQ').textContent = `❓ ${q.q}`;
+  document.getElementById('quizFeedback').textContent = '';
+  document.getElementById('nextBtn').style.display = 'none';
+  answered = false;
+  updateScore();
+
+  const container = document.getElementById('quizOpts');
+  container.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => answer(i);
+    container.appendChild(btn);
+  });
+}
+
+function answer(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIndex];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.correct) b.classList.add('correct');
+    else if (idx === i && i !== q.correct) b.classList.add('wrong');
+  });
+  if (i === q.correct) score++;
+  document.getElementById('quizFeedback').textContent = i === q.correct
+    ? '✅ ' + q.explain
+    : '❌ Skoro! ' + q.explain;
+  updateScore();
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+function nextQuestion() { qIndex++; loadQuestion(); }
+
+function updateScore() {
+  document.getElementById('scoreDisplay').textContent = `Skóre: ${score} / ${Math.min(qIndex, questions.length)}`;
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
